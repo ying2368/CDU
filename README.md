@@ -26,7 +26,7 @@ GPU 液冷監控 SCADA 系統，使用 **Python + MQTT + ThingsBoard** 建立 GP
 
 ---
 
-# 🏗️ System Architecture
+## 🏗️ System Architecture
 
 ```text
 ┌───────────────────────┐
@@ -245,15 +245,7 @@ v1/devices/me/telemetry
 
 ```env
 THINGSBOARD_TOKEN=YOUR_DEVICE_TOKEN
-THINGSBOARD_HOST=mqtt.thingsboard.cloud
-THINGSBOARD_PORT=1883
 ```
-
-其中：
-
-| Variable | 說明 |
-|---|---|
-| `THINGSBOARD_TOKEN` | ThingsBoard Device Access Token |
 
 ---
 
@@ -534,28 +526,6 @@ THINGSBOARD_TOKEN
 
 ---
 
-# 🔒 Security
-
-本專案使用 `.env` 儲存 ThingsBoard Device Token。
-
-請注意：
-
-- 不要將 Device Token 寫死在 `fake_sensor.py`
-- 不要將 `.env` 提交至 GitHub
-- 不要在 README、截圖或報告中公開完整 Device Token
-- 確認 `.gitignore` 包含 `.env`
-
-`.gitignore` 建議內容：
-
-```gitignore
-.env
-.venv/
-__pycache__/
-*.pyc
-```
-
----
-
 # 📌 Development Notes
 
 本專案目前的 Sensor Data 為 **模擬資料**，主要用於：
@@ -567,41 +537,3 @@ __pycache__/
 - 專題展示與測試
 
 實際部署時，可以將 `fake_sensor.py` 替換為實體 GPU、溫度感測器、流量計、電壓/電流感測器等設備的資料來源。
-
----
-
-# 🧩 Data Flow
-
-```text
-┌───────────────────────┐
-│    fake_sensor.py     │
-│                       │
-│ Generate Fake Data    │
-└───────────┬───────────┘
-            │
-            │ MQTT
-            ▼
-┌───────────────────────┐
-│    ThingsBoard        │
-│                       │
-│      Device           │
-└───────────┬───────────┘
-            │
-            │ Telemetry
-            ▼
-┌───────────────────────┐
-│ GPU Cooling SCADA     │
-│                       │
-│ Dashboard             │
-├───────────────────────┤
-│ GPU Monitoring        │
-│ Water Block           │
-│ Valve                 │
-│ Pump                  │
-│ Radiator              │
-│ System Power          │
-│ PUE                   │
-│ GFLOPS/W              │
-└───────────────────────┘
-```
-
