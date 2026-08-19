@@ -2,12 +2,20 @@ import paho.mqtt.client as mqtt
 import json
 import random
 import time
+import os  
+from dotenv import load_dotenv  
+
+load_dotenv()
 
 # =====================================
 # ThingsBoard MQTT 設定
 # =====================================
-TOKEN = "6J7NdbgxX62IPZTL5BWR"
-MQTT_HOST = "localhost"
+TOKEN = os.getenv("THINGSBOARD_TOKEN")
+
+if not TOKEN:
+    raise ValueError("錯誤：找不到 ThingsBoard Token，請確認是否已設定！")
+
+MQTT_HOST = "mqtt.thingsboard.cloud"
 MQTT_PORT = 1883
 
 client = mqtt.Client()
@@ -169,4 +177,5 @@ try:
 
 except KeyboardInterrupt:
     print("程式已停止")
+
     client.disconnect()

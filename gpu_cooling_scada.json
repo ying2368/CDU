@@ -15654,7 +15654,7 @@
                       "color": ""
                     }
                   },
-                  "units": "°C",
+                  "units": "A",
                   "decimals": 0,
                   "aggregationType": null,
                   "funcBody": null,
@@ -16518,7 +16518,7 @@
                       "color": ""
                     }
                   },
-                  "units": "",
+                  "units": "V",
                   "decimals": 0,
                   "aggregationType": null,
                   "funcBody": null,
