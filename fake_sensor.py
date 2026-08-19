@@ -3,6 +3,7 @@ import json
 import random
 import time
 import os  
+from datetime import datetime
 from dotenv import load_dotenv  
 
 load_dotenv()
@@ -20,9 +21,25 @@ MQTT_PORT = 1883
 
 client = mqtt.Client()
 client.username_pw_set(TOKEN)
+
+def on_connect(client, userdata, flags, rc):
+    if rc == 0:
+        print("🟢 MQTT 已連線到 ThingsBoard")
+    else:
+        print(f"🔴 MQTT 連線失敗，錯誤碼：{rc}")
+
+def on_disconnect(client, userdata, rc):
+    print(f"🔴 MQTT 已斷線，錯誤碼：{rc}")
+
+client.on_connect = on_connect
+client.on_disconnect = on_disconnect
+
 client.connect(MQTT_HOST, MQTT_PORT, 60)
 
-print("開始發送 GPU 液冷監控模擬資料...")
+# 啟動 MQTT 網路處理
+client.loop_start()
+
+print("開始發送 GPU 液冷監控模擬資料...\n")
 
 try:
     while True:
@@ -123,7 +140,6 @@ try:
         # 幫浦功率(W)
         data["pump_power"] = round(pump_voltage * pump_current, 2)
 
-       
         # =====================================================
         # 5. 冷排溫度
         # =====================================================
@@ -163,19 +179,26 @@ try:
         # 發送資料至 ThingsBoard
         # =====================================================
 
-        client.publish(
+        result = client.publish(
             "v1/devices/me/telemetry",
             json.dumps(data)
         )
 
-        print("=" * 60)
-        print("成功送出一筆模擬資料")
-        print(json.dumps(data, indent=4, ensure_ascii=False))
+        # 取得當前時間
+        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        # 簡化輸出 log
+        if result.rc == mqtt.MQTT_ERR_SUCCESS:
+            print(f"[{current_time}] ✅ 資料發送成功 | 系統總功耗: {data['system_power']}W | PUE: {data['pue']} | 總算力: {data['total_gflops']} GFLOPS")
+        else:
+            print(f"[{current_time}] ❌ MQTT 發送失敗，錯誤碼：{result.rc}")
 
         # 每5秒送一次
         time.sleep(5)
 
 except KeyboardInterrupt:
-    print("程式已停止")
-
+    print("\n程式已停止")
+    
+finally:
+    client.loop_stop()
     client.disconnect()
