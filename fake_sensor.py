@@ -172,8 +172,8 @@ try:
         print("成功送出一筆模擬資料")
         print(json.dumps(data, indent=4, ensure_ascii=False))
 
-        # 每2秒送一次
-        time.sleep(2)
+        # 每5秒送一次
+        time.sleep(5)
 
 except KeyboardInterrupt:
     print("程式已停止")
