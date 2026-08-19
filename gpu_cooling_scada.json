@@ -9006,7 +9006,7 @@
             "realtime": {
               "realtimeType": 0,
               "interval": 1000,
-              "timewindowMs": 1000
+              "timewindowMs": 60000
             },
             "aggregation": {
               "type": "AVG"
