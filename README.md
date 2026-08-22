@@ -213,7 +213,7 @@ GPU Cooling SCADA
 
 Python Sensor 使用 MQTT 連接 ThingsBoard。
 
-主要設定：
+預設設定：
 
 ```text
 MQTT Host:
