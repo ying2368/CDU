@@ -233,7 +233,7 @@ v1/devices/me/telemetry
 
 # 🔐 Environment Variables
 
-本專案使用 `.env` 儲存 ThingsBoard 的連線資訊。
+本專案使用 `python-dotenv` 讀取 `.env`，將 ThingsBoard Device Token、MQTT Host 與 MQTT Port 放在環境變數中。
 
 在專案根目錄建立：
 
@@ -245,6 +245,15 @@ v1/devices/me/telemetry
 
 ```env
 THINGSBOARD_TOKEN=YOUR_DEVICE_TOKEN
+MQTT_HOST=YOUR_MQTT_HOST
+MQTT_PORT=YOUR_MQTT_PORT
+```
+
+例如：
+```env
+THINGSBOARD_TOKEN=xxxxxxxxxxxxxxxxxxxx
+MQTT_HOST=mqtt.thingsboard.cloud
+MQTT_PORT=1883
 ```
 
 ---
