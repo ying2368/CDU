@@ -12,12 +12,14 @@ load_dotenv()
 # ThingsBoard MQTT 設定
 # =====================================
 TOKEN = os.getenv("THINGSBOARD_TOKEN")
+MQTT_HOST = os.getenv("MQTT_HOST")
+MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
 
 if not TOKEN:
     raise ValueError("錯誤：找不到 ThingsBoard Token，請確認是否已設定！")
 
-MQTT_HOST = "mqtt.thingsboard.cloud"
-MQTT_PORT = 1883
+if not MQTT_HOST:
+    raise ValueError("錯誤：找不到 MQTT_HOST，請確認 .env 設定！")
 
 client = mqtt.Client()
 client.username_pw_set(TOKEN)
@@ -25,6 +27,8 @@ client.username_pw_set(TOKEN)
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print("🟢 MQTT 已連線到 ThingsBoard")
+    elif rc in (3, 5):
+        print(f"🔴 連線失敗 (錯誤碼 {rc})：Token 或權限無效，請檢查 .env 設定！")
     else:
         print(f"🔴 MQTT 連線失敗，錯誤碼：{rc}")
 
@@ -39,10 +43,16 @@ client.connect(MQTT_HOST, MQTT_PORT, 60)
 # 啟動 MQTT 網路處理
 client.loop_start()
 
-print("開始發送 GPU 液冷監控模擬資料...\n")
+print("開始監控連線狀況...")
 
 try:
     while True:
+        # 1. 檢查 MQTT 連線狀態，若未連線則不執行運算與發送
+        if not client.is_connected():
+            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            print(f"[{current_time}] ⚠️ 尚未連線到 MQTT Broker，等待重連中...")
+            time.sleep(5)
+            continue
 
         # 儲存所有 Telemetry 資料
         data = {}
@@ -184,10 +194,8 @@ try:
             json.dumps(data)
         )
 
-        # 取得當前時間
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        # 簡化輸出 log
         if result.rc == mqtt.MQTT_ERR_SUCCESS:
             print(f"[{current_time}] ✅ 資料發送成功 | 系統總功耗: {data['system_power']}W | PUE: {data['pue']} | 總算力: {data['total_gflops']} GFLOPS")
         else:
@@ -197,8 +205,13 @@ try:
         time.sleep(5)
 
 except KeyboardInterrupt:
-    print("\n程式已停止")
+    print("🛑 使用者停止 GPU Cooling Simulator")
     
 finally:
+    print("🔌 正在停止 MQTT Client...")
+
     client.loop_stop()
     client.disconnect()
+
+    print("✅ MQTT 已正常關閉")
+    print("程式已停止。")
